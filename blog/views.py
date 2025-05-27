@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from django.http import Http404
 
 posts = [
     {
@@ -43,6 +43,7 @@ posts = [
                 укутывал их, чтобы не испортились от дождя.''',
     },
 ]
+posts_dict = {post['id']: post for post in posts}
 
 
 def index(request):
@@ -50,8 +51,11 @@ def index(request):
     return render(request, 'blog/index.html', {'posts': reversed_posts})
 
 
-def post_detail(request, id):
-    post = next((p for p in posts if p['id'] == id), None)
+def post_detail(request, post_id):
+    try:
+        post = posts_dict[post_id]
+    except KeyError:
+        raise Http404(f"Пост с id={post_id} не найден")
     return render(request, 'blog/detail.html', {'post': post})
 
 
